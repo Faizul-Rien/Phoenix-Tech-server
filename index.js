@@ -30,13 +30,14 @@ function verifyJWT(req, res, next) {
     });
   }
 
-  
+
 
 async function run() {
     try {
       await client.connect();
       const partCollection = client.db('phoenix_tech').collection('parts');
       const purchaseCollection = client.db('phoenix_tech').collection('purchases');
+      const userCollection = client.db('phoenix_tech').collection('users');
 
     app.get('/part', async (req, res) => {
         const query = {};
@@ -58,11 +59,33 @@ async function run() {
         res.send(result)
     });
 
-    app.get('/purchase', async (req, res) => {
+    app.get('/purchase',  async (req, res) => {
         const user = req.query.user;
-        const purchase = await purchaseCollection.find(user).toArray();
-         res.send(purchase);
+        const query = {user:user}
+          const purchase = await purchaseCollection.find(query).toArray();
+        res.send(purchase);
+        
+           
+        
       });
+
+    //   app.get('/user', verifyJWT, async (req, res) => {
+    //     const users = await userCollection.find().toArray();
+    //     res.send(users);
+    //   });
+
+    //   app.put('/user/:email', async (req, res) => {
+    //     const email = req.params.email;
+    //     const user = req.body;
+    //     const filter = { email: email };
+    //     const options = { upsert: true };
+    //     const updateDoc = {
+    //       $set: user,
+    //     };
+    //     const result = await userCollection.updateOne(filter, updateDoc, options);
+    //     const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    //     res.send({ result, token });
+    //   });
 
 
     }
