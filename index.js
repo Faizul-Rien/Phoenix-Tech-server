@@ -18,20 +18,29 @@ async function run() {
     try {
       await client.connect();
       const partCollection = client.db('phoenix_tech').collection('parts');
+      const purchaseCollection = client.db('phoenix_tech').collection('purchases');
 
-      app.get('/part', async (req, res) => {
+    app.get('/part', async (req, res) => {
         const query = {};
         const cursor = partCollection.find(query);
         const parts = await cursor.toArray();
         res.send(parts);
       });
 
-      app.get('/part/:id', async (req, res)=>{
+    app.get('/part/:id', async (req, res)=>{
         const id = req.params.id;
         const query = {_id: ObjectId(id)};
         const parts = await partCollection.findOne(query);
         res.send(parts);
     })
+
+    app.post('/purchase', async (req, res) => {
+        const purchase = req.body;
+        const result = await purchaseCollection.insertOne(purchase);
+        res.send(result)
+
+       
+      });
 
 
 
