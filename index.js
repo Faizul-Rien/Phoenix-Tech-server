@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const app = express();
@@ -25,6 +25,13 @@ async function run() {
         const parts = await cursor.toArray();
         res.send(parts);
       });
+
+      app.get('/part/:id', async (req, res)=>{
+        const id = req.params.id;
+        const query = {_id: ObjectId(id)};
+        const parts = await partCollection.findOne(query);
+        res.send(parts);
+    })
 
 
 
