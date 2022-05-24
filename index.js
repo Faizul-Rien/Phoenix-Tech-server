@@ -15,20 +15,20 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-function verifyJWT(req, res, next) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).send({ message: 'UnAuthorized access' });
-    }
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-      if (err) {
-        return res.status(403).send({ message: 'Forbidden access' })
-      }
-      req.decoded = decoded;
-      next();
-    });
-  }
+// function verifyJWT(req, res, next) {
+//     const authHeader = req.headers.authorization;
+//     if (!authHeader) {
+//       return res.status(401).send({ message: 'UnAuthorized access' });
+//     }
+//     const token = authHeader.split(' ')[1];
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+//       if (err) {
+//         return res.status(403).send({ message: 'Forbidden access' })
+//       }
+//       req.decoded = decoded;
+//       next();
+//     });
+//   }
 
 
 
@@ -38,12 +38,19 @@ async function run() {
       const partCollection = client.db('phoenix_tech').collection('parts');
       const purchaseCollection = client.db('phoenix_tech').collection('purchases');
       const userCollection = client.db('phoenix_tech').collection('users');
+      const profileCollection = client.db('phoenix_tech').collection('profiles');
 
     app.get('/part', async (req, res) => {
         const query = {};
         const cursor = partCollection.find(query);
         const parts = await cursor.toArray();
         res.send(parts);
+      });
+      
+    app.post('/part', async (req, res) => {
+        const newpart = req.body;
+        const result = await partCollection.insertOne(newpart);
+        res.send(result);
       });
 
     app.get('/part/:id', async (req, res)=>{
@@ -54,8 +61,8 @@ async function run() {
     })
 
     app.post('/purchase', async (req, res) => {
-        const purchase = req.body;
-        const result = await purchaseCollection.insertOne(purchase);
+        const query = req.body;
+        const result = await purchaseCollection.insertOne(query);
         res.send(result)
     });
 
@@ -107,6 +114,12 @@ async function run() {
         const isAdmin = user.role === 'admin';
         res.send({ admin: isAdmin })
       })
+
+      app.post('/profile', async (req, res) => {
+        const query = req.body;
+        const result = await profileCollection.insertOne(query);
+        res.send(result)
+    });
 
 
     }
