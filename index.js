@@ -39,6 +39,7 @@ async function run() {
       const purchaseCollection = client.db('phoenix_tech').collection('purchases');
       const userCollection = client.db('phoenix_tech').collection('users');
       const profileCollection = client.db('phoenix_tech').collection('profiles');
+      const reviewCollection = client.db('phoenix_tech').collection('reviews');
 
     app.get('/part', async (req, res) => {
         const query = {};
@@ -46,7 +47,7 @@ async function run() {
         const parts = await cursor.toArray();
         res.send(parts);
       });
-      
+
     app.post('/part', async (req, res) => {
         const newpart = req.body;
         const result = await partCollection.insertOne(newpart);
@@ -119,6 +120,11 @@ async function run() {
         const query = req.body;
         const result = await profileCollection.insertOne(query);
         res.send(result)
+    });
+
+    app.get('/review', async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
     });
 
 
