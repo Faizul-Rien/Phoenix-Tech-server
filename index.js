@@ -23,6 +23,7 @@ async function run() {
       const userCollection = client.db('phoenix_tech').collection('users');
       const profileCollection = client.db('phoenix_tech').collection('profiles');
       const reviewCollection = client.db('phoenix_tech').collection('reviews');
+      const paymentCollection = client.db('phoenix_tech').collection('payments');
 
     app.get('/part', async (req, res) => {
         const query = {};
@@ -123,6 +124,34 @@ async function run() {
       const result = await reviewCollection.insertOne(query);
       res.send(result)
   });
+
+  app.post('/create-payment-intent', async(req, res) =>{
+    const service = req.body;
+    const price = service.price;
+    const amount = price*100;
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount : amount,
+      currency: 'usd',
+      payment_method_types:['card']
+    });
+    res.send({clientSecret: paymentIntent.client_secret})
+  });
+
+  app.patch('/purchase/:id', async(req, res) =>{
+    const id  = req.params.id;
+    const payment = req.body;
+    const filter = {_id: ObjectId(id)};
+    const updatedDoc = {
+      $set: {
+        paid: true,
+        transactionId: payment.transactionId
+      }
+    }
+
+    const result = await paymentCollection.insertOne(payment);
+    const updatepurchase = await purchaseCollection.updateOne(filter, updatedDoc);
+    res.send(updatepurchase);
+  })
 
 
     }
